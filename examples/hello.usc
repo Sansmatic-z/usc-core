@@ -1,0 +1,9 @@
+@symbol greeting
+@mode inline
+@type text/plain
+@data <<
+Hello, Raj!
+>>
+
+This is a simple USC file.
+The greeting is: greeting

@@ -1,0 +1,14 @@
+@symbol snippet
+@mode inline
+@type text/javascript
+@data <<
+console.log("Embedded logic here");
+>>
+
+This document contains a code snippet.
+
+---
+snippet
+---
+
+End of document.

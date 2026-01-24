@@ -1,0 +1,9 @@
+# USC Core v0.1 Dependencies
+# ----------------------------
+# The core system is designed to have ZERO external runtime dependencies.
+# It relies strictly on the Python Standard Library (re, json, dataclasses, typing).
+
+# Development & Testing Dependencies
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0

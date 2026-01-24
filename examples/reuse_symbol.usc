@@ -1,0 +1,11 @@
+@symbol user
+@mode inline
+@type text/plain
+@data <<
+Admin
+>>
+
+Access logs:
+- user logged in at 08:00
+- user accessed database
+- user logged out at 09:00
