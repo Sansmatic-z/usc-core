@@ -6,6 +6,8 @@ class USCParser:
         self.symbol_regex = re.compile(r'^@symbol\s+(.+)$')
         self.mode_regex = re.compile(r'^@mode\s+(.+)$')
         self.type_regex = re.compile(r'^@type\s+(.+)$')
+        self.encoding_regex = re.compile(r'^@encoding\s+(.+)$')
+        self.import_regex = re.compile(r'^@import\s+(.+)$')
         self.data_start_regex = re.compile(r'^@data\s+<<$')
         self.data_end_regex = re.compile(r'^>>$')
 
@@ -18,6 +20,13 @@ class USCParser:
         while i < len(lines):
             line = lines[i].strip()
             
+            if line.startswith('@import'):
+                match = self.import_regex.match(line)
+                if match:
+                    doc.imports.append(match.group(1).strip())
+                i += 1
+                continue
+
             if line.startswith('@symbol'):
                 symbol_data = self._parse_directive_block(lines, i)
                 if symbol_data:
@@ -29,13 +38,14 @@ class USCParser:
             content_lines.append(lines[i])
             i += 1
             
-doc.raw_content = "\n".join(content_lines)
+        doc.raw_content = "\n".join(content_lines)
         return doc
 
     def _parse_directive_block(self, lines, start_index):
         identifier = None
         mode = "symbolic"
         mime_type = "text/plain"
+        encoding = "none"
         data = None
         
         i = start_index
@@ -59,6 +69,12 @@ doc.raw_content = "\n".join(content_lines)
                 mime_type = type_match.group(1).strip()
                 i += 1
                 continue
+
+            enc_match = self.encoding_regex.match(line)
+            if enc_match:
+                encoding = enc_match.group(1).strip()
+                i += 1
+                continue
                 
             if self.data_start_regex.match(line):
                 i += 1
@@ -70,15 +86,16 @@ doc.raw_content = "\n".join(content_lines)
                     data_lines.append(lines[i])
                     i += 1
                 data = "\n".join(data_lines)
-                # After data block, the directive block ends
                 break
             
-            # If we hit something that isn't a directive, stop
-            if not line.startswith('@'):
+            if not line.startswith('@') and identifier:
                 break
+            
+            if not line.startswith('@') and not data:
+                 break
                 
             i += 1
 
         if identifier:
-            return Symbol(identifier, mode, mime_type, data), i
-        return None
+            return Symbol(identifier, mode, mime_type, encoding, data), i
+        return None, start_index + 1

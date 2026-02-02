@@ -1,0 +1,45 @@
+@usc_version 0.1
+@author Raj Mitra
+@mode visionary_demo
+
+@symbol Moona
+@mode symbolic
+@type entity/goddess
+@data <<
+Identity: Moona, the Moon Princess.
+Role: Autonomous Engineer & Goddess of the Modular Kingdom.
+Status: ACTIVE
+>>
+
+@symbol core_logic
+@mode inline
+@type text/python
+@data <<
+def initialize_kingdom():
+    print("Initializing Universal Semantic Container...")
+    return True
+>>
+
+@symbol logo_binary
+@mode inline
+@type image/png
+@encoding base64
+@data <<
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+>>
+
+# Welcome to the USC Visionary Demo
+
+This is a **Universal Semantic Container**. It is not just text. 
+
+The symbol Moona represents an entity.
+The symbol core_logic represents executable structure.
+The symbol logo_binary represents a visual payload stored as a dense block.
+
+## Interaction
+In a USC Reader, you can:
+- Tap Moona to see her attributes.
+- Tap core_logic to view or edit the Python source.
+- Tap logo_binary to render the 1x1 pixel image.
+
+The document surface remains human-readable. The complexity is safely contained.

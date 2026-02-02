@@ -1,3 +1,4 @@
+import re
 from .payload import PayloadHandler
 
 class USCResolver:
@@ -10,12 +11,17 @@ class USCResolver:
         result = self.document.raw_content
         
         # Sort symbols by length descending to avoid partial matches
+        # (Still good practice even with regex, though boundaries help)
         sorted_identifiers = sorted(self.document.symbols.keys(), key=len, reverse=True)
         
         for identifier in sorted_identifiers:
             symbol = self.document.symbols[identifier]
             resolved_value = self.resolve_symbol(symbol)
-            result = result.replace(identifier, resolved_value)
+            
+            # Use regex with word boundaries to replace only whole words
+            # Escape identifier to handle special regex chars
+            pattern = r'\b' + re.escape(identifier) + r'\b'
+            result = re.sub(pattern, resolved_value, result)
             
         return result
 

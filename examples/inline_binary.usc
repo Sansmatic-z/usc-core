@@ -1,0 +1,8 @@
+@symbol bin_data
+@mode inline
+@type application/octet-stream
+@data <<
+SGVsbG8gV29ybGQ=
+>>
+
+Binary data (base64 encoded in this example text): bin_data

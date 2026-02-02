@@ -1,0 +1,9 @@
+@symbol note
+@mode inline
+@type text/plain
+@data <<
+This is a simple text note.
+It can have multiple lines.
+>>
+
+Here is the note: note

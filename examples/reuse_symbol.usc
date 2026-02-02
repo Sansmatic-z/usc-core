@@ -1,11 +1,27 @@
-@symbol user
+@usc_version 0.1
+@author Raj Mitra
+@mode experimental
+
+@symbol big_logic
 @mode inline
-@type text/plain
+@type text/python
 @data <<
-Admin
+# Imagine 10,000 lines of complex orbital mechanics code here.
+# In USC, this massive payload is stored once but referenced by a 9-letter symbol.
+def calculate_orbit(entity_id):
+    print(f"Calculating complex trajectories for {entity_id}...")
+    # ... massive symbolic code block ...
+    return "stable"
 >>
 
-Access logs:
-- user logged in at 08:00
-- user accessed database
-- user logged out at 09:00
+## The Power of Symbolic Reuse
+
+In this document, we reference the symbol `big_logic` multiple times.
+The document remains lightweight and readable, but the payload is "folded" behind the symbol.
+
+1. First call to big_logic.
+2. Second call to big_logic.
+3. Third call to big_logic.
+
+Even if `big_logic` contained a 50MB database, the reading surface would remain clean.
+If the user has a USC Reader, they can expand any instance to see the internals.

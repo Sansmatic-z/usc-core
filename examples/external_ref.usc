@@ -1,0 +1,9 @@
+@symbol ref
+@mode external
+@type text/plain
+@data <<
+examples/hello.usc
+>>
+
+Content of referenced file:
+ref

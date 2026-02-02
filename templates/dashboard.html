@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USC Core - Neural Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --on-surface: #e1e1e1;
+            --error: #cf6679;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--on-surface);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #sidebar {
+            width: 300px;
+            background-color: var(--surface);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1, h2, h3 { color: var(--primary); margin-top: 0; }
+
+        .usc-container {
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            white-space: pre-wrap;
+            font-family: 'Fira Code', monospace;
+            line-height: 1.6;
+        }
+
+        .symbol-tag {
+            background: rgba(187, 134, 252, 0.2);
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--primary);
+            transition: all 0.2s;
+        }
+
+        .symbol-tag:hover {
+            background: var(--primary);
+            color: var(--background);
+        }
+
+        .payload-preview {
+            margin-top: 10px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-left: 4px solid var(--secondary);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: var(--background);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        input[type="text"] {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-item {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .file-item.active {
+            background: rgba(187, 134, 252, 0.1);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2><i class="fas fa-microchip"></i> USC Core</h2>
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="file-path" placeholder="Path to .usc file..." style="width: 100%;">
+            <button class="btn" onclick="loadFile()" style="width: 100%;">Load File</button>
+        </div>
+        <h3>Recent Files</h3>
+        <ul id="recent-files" class="file-list">
+            <li class="file-item" onclick="selectFile('examples/hello.usc')">hello.usc</li>
+            <li class="file-item" onclick="selectFile('examples/inline_text.usc')">inline_text.usc</li>
+            <li class="file-item" onclick="selectFile('examples/reuse_symbol.usc')">reuse_symbol.usc</li>
+            <li class="file-item" onclick="selectFile('examples/vision_demo.usc')">vision_demo.usc</li>
+        </ul>
+    </div>
+    <div id="main-content">
+        <div class="header">
+            <h1 id="current-filename">No file loaded</h1>
+            <div>
+                <button class="btn" onclick="saveFile()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+        <div id="editor-container" class="usc-container">
+            Click "Load File" to begin resolution...
+        </div>
+        <div id="preview-panel" class="payload-preview">
+            <div id="preview-header" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong id="preview-symbol-name"></strong>
+                <span id="preview-type" style="color: var(--secondary);"></span>
+            </div>
+            <div id="preview-body"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentFileData = null;
+        let currentPath = '';
+
+        async function selectFile(path) {
+            document.getElementById('file-path').value = path;
+            loadFile();
+        }
+
+        async function loadFile() {
+            const path = document.getElementById('file-path').value;
+            if (!path) return;
+            currentPath = path;
+
+            try {
+                const response = await fetch('/api/parse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: path })
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                currentFileData = data;
+                renderContent(data);
+                document.getElementById('current-filename').innerText = path.split('/').pop();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function renderContent(data) {
+            const container = document.getElementById('editor-container');
+            let content = data.raw_content;
+            
+            // Sort symbols by length descending to prevent partial match issues
+            const symbols = Object.keys(data.symbols).sort((a, b) => b.length - a.length);
+            
+            symbols.forEach(sym => {
+                const regex = new RegExp(`\\b${sym}\\b`, 'g');
+                content = content.replace(regex, `<span class="symbol-tag" onclick="inspectSymbol('${sym}')">${sym}</span>`);
+            });
+
+            container.innerHTML = content;
+        }
+
+        async function inspectSymbol(name) {
+            const symbol = currentFileData.symbols[name];
+            const preview = document.getElementById('preview-panel');
+            const body = document.getElementById('preview-body');
+            
+            document.getElementById('preview-symbol-name').innerText = `@symbol ${name}`;
+            document.getElementById('preview-type').innerText = symbol.mime_type;
+            
+            preview.style.display = 'block';
+            
+            if (symbol.mime_type.startsWith('image/')) {
+                body.innerHTML = `<img src="data:${symbol.mime_type};base64,${symbol.data}" style="max-width: 100%; border-radius: 4px;">`;
+            } else if (symbol.mime_type === 'text/plain' || symbol.mime_type.includes('code')) {
+                body.innerHTML = `<pre style="margin:0; font-family:'Fira Code'; white-space: pre-wrap;">${symbol.data}</pre>`;
+            } else {
+                body.innerHTML = `<p>Mode: ${symbol.mode}<br>Encoding: ${symbol.encoding}</p>`;
+            }
+        }
+
+        async function saveFile() {
+            alert('Save function active: Syncing structure to storage...');
+        }
+    </script>
+</body>
+</html>
