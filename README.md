@@ -1,5 +1,7 @@
 # USC Core — Universal Semantic Container (Experimental)
 
+web app- https://usc-seven.vercel.app/
+
 **Author:** Raj Mitra (Visionary RM)
 
 USC is an experimental language and container format for embedding **text, code, images, audio, databases, and executable logic** into a single symbolic, human-readable file.
